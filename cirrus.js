@@ -29,10 +29,11 @@ var redirectHandler = function(req, res) {
     });
 };
 
-downloadSong('136536788', function() {
-    playSong();
+/*downloadSong('136536788', function(filename) {
+    playSong(filename);
 });
-
+*/
+playPlaylist('24967373');
 function downloadSong (trackid, callback) {
     SC.get('/tracks/' + trackid, function(err, track) {
         if ( err ) {
@@ -45,7 +46,7 @@ function downloadSong (trackid, callback) {
     		        if (!err && res.statusCode == 200) {
 				            var r = request(remoteFile).pipe(file);
                     r.on('close', function() {
-                       callback();
+                       callback(r.path);
                     });
                 } else {
 		                throw err;
@@ -56,16 +57,22 @@ function downloadSong (trackid, callback) {
     });
 }
 
-function playSong () {
-    var player = new Mpg();
-    fs.readdir(".", function(err, files) {
-        var songs = [];
-        for(i = 0; i < files.length; i++) {
-            if(files[i].includes(".mp3")) {
-                songs[songs.length] = path.join(__dirname, files[i]);
-                player.play(path.join(__dirname, files[i]));
+//191058000
+
+function playPlaylist (playlistid, callback) {
+    SC.get('/playlists/' + playlistid, function(err, playlist) {
+        if ( err ) {
+            throw err;
+        } else {
+            for (i in playlist.tracks) {
+                console.log(playlist.tracks[i].id);
             }
+            //console.log(playlist);
         }
-        console.log(songs[0]);
     });
+}
+
+function playSong (filename) {
+    var player = new Mpg();
+    player.play(path.join(__dirname, filename));
 }
