@@ -29,11 +29,11 @@ var redirectHandler = function(req, res) {
     });
 };
 
-/*downloadSong('136536788', function(filename) {
+downloadSong('136536788', function(filename) {
     playSong(filename);
 });
-*/
-playPlaylist('24967373');
+
+//playPlaylist('24967373');
 function downloadSong (trackid, callback) {
     SC.get('/tracks/' + trackid, function(err, track) {
         if ( err ) {
@@ -65,7 +65,9 @@ function playPlaylist (playlistid, callback) {
             throw err;
         } else {
             for (i in playlist.tracks) {
-                console.log(playlist.tracks[i].id);
+                console.log(playlist.tracks[i].title);
+                var playz = new Mpg();
+                playz.play(path.join(__dirname, playlist.tracks[i]));
             }
             //console.log(playlist);
         }
