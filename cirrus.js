@@ -1,53 +1,91 @@
+//A nice SoundCloud API wrapper to save some time
 var SC = require('node-soundcloud');
+
+//Standard includes for various functionallity
 var fs = require('fs');
 var url = require('url');
 var http = require('http');
 var request = require('request');
-var Mpg = require('mpg123');
 var path = require('path');
+
+//Mpg123 for playing audio
+var Mpg = require('mpg123');
+
+//Readline for taking user input
+const readline = require('readline');
+
+//SoundCirrus client_id so I don't have to type it
+var client_id = '4121ea32e43d031fbfba8e2a17821bae';
+
+//Initialize with SoundCloud confirming client ID and secret...
+//Insures that it is the SoundCirrus application requesting data. Validates against file hosted on server.
 SC.init({
-    id: '4121ea32e43d031fbfba8e2a17821bae',
+    id: client_id,
     secret: '04bca05ec426c656dd5eaf92f489b30c',
     uri: 'https://matthewkelsey.com/soundcirrus/callback.html'
 });
 
+//Initialize OAuth2 and validate with the callback page on server
 var initOAuth = function(req, res) {
     var url = SC.getConnectUrl();
     res.writeHead(301, url);
     res.end();
 };
 
+//Follow redirects through authorization
 var redirectHandler = function(req, res) {
     var code = req.query.code;
     SC.authorize(code, function(err, accessToken) {
         if ( err ) {
             throw err;
         } else {
-            // Client is now authorized and able to make API calls 
+            // Client is now authorized and able to make API calls
             console.log('access token:', accessToken);
         }
     });
 };
 
-downloadSong('136536788', function(filename) {
-    playSong(filename);
+//Action to take, in this case, retrieve a playlist from the SoundCloud API and then begin iterating through the song ID's in the playlist
+getPlaylist('24967373', function(tracks) {
+    playPlaylist(tracks, 0);
 });
 
-//playPlaylist('24967373');
+
+function playPlaylist(trackArray, index, callback) {
+    console.log("downloading.......");
+    //From the trackArray in the retrieved playlist download and play the first song
+    downloadSong(trackArray[index], function(song) {
+        console.log("downloaded");
+        console.log("playing......")
+        playSong(song, function () {
+            console.log("played");
+            //When the song has finished repeat the process with the next song in the trackArray
+            playPlaylist(trackArray, index+1);
+        });
+    });
+}
+
 function downloadSong (trackid, callback) {
+    //Get data for given trackID
     SC.get('/tracks/' + trackid, function(err, track) {
         if ( err ) {
             throw err;
         } else {
+            //Create a unique localFile for the track to be downloaded into
             var localFile = "temp_" + track.title.substring(0,5) + track.id + ".mp3";
+            //Create a writeStream to this file
             var file = fs.createWriteStream(localFile);
-            var remoteFile = "https://api.soundcloud.com/tracks/"+ trackid +"/stream?client_id=fe2f6074657651c9128168cfbbf7ee4f"
+
+            //Retrieve track
+            var remoteFile = "https://api.soundcloud.com/tracks/"+ trackid +"/stream?client_id=" + client_id;
             request.head(remoteFile, function(err, res, body) {
     		        if (!err && res.statusCode == 200) {
-				            var r = request(remoteFile).pipe(file);
-                    r.on('close', function() {
-                       callback(r.path);
-                    });
+                    //Pipe data from remote file to the writeStream of the localFile
+                    var r = request(remoteFile).pipe(file);
+                    r.on('finish', function() {
+                        //When finished, callback
+                        callback(r.path);
+                    })
                 } else {
 		                throw err;
 			          }
@@ -57,24 +95,50 @@ function downloadSong (trackid, callback) {
     });
 }
 
-//191058000
-
-function playPlaylist (playlistid, callback) {
+function getPlaylist (playlistid, callback) {
+    //Get data for given playlistID
     SC.get('/playlists/' + playlistid, function(err, playlist) {
         if ( err ) {
             throw err;
         } else {
+            //Make an array of trackID of the songs in the playlist
+            var trackArray = [];
             for (i in playlist.tracks) {
-                console.log(playlist.tracks[i].title);
-                var playz = new Mpg();
-                playz.play(path.join(__dirname, playlist.tracks[i]));
+                trackArray[i] = playlist.tracks[i].id;
+                //playlist.tracks[i].id
             }
-            //console.log(playlist);
+            callback(trackArray);
         }
     });
 }
 
-function playSong (filename) {
+function playSong (filename, callback) {
+    //This variable will be used later to ensure that the callback is not executed twice
+    var skipped = false;
+
+    //Create a new instance of Mpg() and begin playing the given filePath
     var player = new Mpg();
     player.play(path.join(__dirname, filename));
+
+    //create readLine for user input from stdin
+    const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+    });
+
+    rl.on('line', (cmd) => {
+        //console.log(`${cmd}`);
+        if(`${cmd}` == "next") {
+            //Stop playing the song (otherwise it will continue playing back even after the callback has been called)
+            //This method ends the song which will trigger the .on('end') listener, in turn firing the callback and closing the readLine
+            player.stop();
+        }
+    });
+
+    //This will execute when the track ends, whether it be by the user (typing in next), or from the song being over
+    player.on('end', function(data) {
+        //Close readLine and callback
+        rl.close()
+        callback();
+    });
 }
