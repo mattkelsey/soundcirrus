@@ -55,8 +55,8 @@ function playPlaylist(trackArray, index, callback) {
     console.log("downloading.......");
     //From the trackArray in the retrieved playlist download and play the first song
     downloadSong(trackArray[index], function(song) {
-        console.log("downloaded");
-        console.log("playing......")
+        console.log("downloaded: " + trackArray[index]);
+        console.log("playing")
         playSong(song, function () {
             console.log("played");
             //When the song has finished repeat the process with the next song in the trackArray
@@ -81,6 +81,7 @@ function downloadSong (trackid, callback) {
             request.head(remoteFile, function(err, res, body) {
     		        if (!err && res.statusCode == 200) {
                     //Pipe data from remote file to the writeStream of the localFile
+                    //future versions will offer the option to pipe to localFile or stream directly
                     var r = request(remoteFile).pipe(file);
                     r.on('finish', function() {
                         //When finished, callback
@@ -132,6 +133,10 @@ function playSong (filename, callback) {
             //Stop playing the song (otherwise it will continue playing back even after the callback has been called)
             //This method ends the song which will trigger the .on('end') listener, in turn firing the callback and closing the readLine
             player.stop();
+        } else if (`${cmd}` == "pause") {
+            player.pause();
+        } else if (`${cmd}` == "resume") {
+            player.play(path.join(__dirname, filename));
         }
     });
 
