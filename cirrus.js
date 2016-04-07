@@ -137,8 +137,10 @@ function playSong (filename, callback) {
 
     //This will execute when the track ends, whether it be by the user (typing in next), or from the song being over
     player.on('end', function(data) {
-        //Close readLine and callback
-        rl.close()
+        //Close readLine
+        rl.close();
+        //Clean file system and callback
+        fs.unlink(path.join(__dirname, filename));
         callback();
     });
 }
