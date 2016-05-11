@@ -7,6 +7,7 @@ var url = require('url');
 var http = require('http');
 var request = require('request');
 var path = require('path');
+var nconf = require('nconf');
 
 //Mpg123 for playing audio
 var Mpg = require('mpg123');
@@ -16,6 +17,12 @@ const readline = require('readline');
 
 //SoundCirrus client_id so I don't have to type it
 var client_id = '4121ea32e43d031fbfba8e2a17821bae';
+
+//Initialize configuration file with nconf
+nconf.argv()
+    .file({ file: 'config.json' });
+
+console.log(nconf.get('p'));
 
 //Initialize with SoundCloud confirming client ID and secret...
 //Insures that it is the SoundCirrus application requesting data. Validates against file hosted on server.
@@ -46,7 +53,7 @@ var redirectHandler = function(req, res) {
 };
 
 //Action to take, in this case, retrieve a playlist from the SoundCloud API and then begin iterating through the song ID's in the playlist
-getPlaylist('24967373', function(tracks) {
+getPlaylist(nconf, function(tracks) {
     playPlaylist(tracks, 0);
 });
 
@@ -96,7 +103,14 @@ function downloadSong (trackid, callback) {
     });
 }
 
-function getPlaylist (playlistid, callback) {
+function getPlaylist (nconf, callback) {
+    var playlistid;
+    if(nconf.get('p') != undefined) {
+        playlistid = nconf.get("playlists:" + nconf.get('p'));
+    } else if (nconf.get('P') != undefined) {
+        playlistid = nconf.get('P');
+    }
+
     //Get data for given playlistID
     SC.get('/playlists/' + playlistid, function(err, playlist) {
         if ( err ) {
