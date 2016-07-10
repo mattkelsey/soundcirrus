@@ -1,15 +1,17 @@
 {
-  "name": "soundcirrus",
-  "version": "1.0.0",
-  "description": "",
-  "main": "cirrus.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "express": "^4.13.4"
-  }
+    "name": "SoundCirrus",
+    "version": "0.0.0",
+    "description": "A minimal CLI SoundCloud player built in NodeJS.",
+    "main": "cirrus.js",
+    "keywords": [],
+    "author": "Matt Kelsey",
+    "license": "MIT",
+    "dependencies": {
+        "express": "^4.13.4",
+        "node-soundcloud": "^0.0.5",
+        "request": "^2.69.0",
+        "path": "^0.12.7",
+        "nconf": "^0.8.4",
+        "mpg123": "0.1.0"
+    }
 }
