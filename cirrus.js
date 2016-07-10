@@ -98,11 +98,12 @@ function downloadSong (trackid, callback) {
     		        if (!err && res.statusCode == 200) {
                     //Pipe data from remote file to the writeStream of the localFile
                     //future versions will offer the option to pipe to localFile or stream directly
+                    //with websockets
                     var r = request(remoteFile).pipe(file);
                     r.on('finish', function() {
                         //When finished, callback
                         callback(r.path);
-                    })
+                    });
                 } else {
 		                throw err;
 			          }
@@ -176,5 +177,10 @@ function playSong (filename, callback) {
         fs.unlink(path.join(__dirname, filename));
         callback();
     });
-}
 
+    //If user terminates application, clean filesystem
+    process.on('SIGINT', function() {
+        fs.unlink(path.join(__dirname, filename));
+    })
+
+}
