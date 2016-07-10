@@ -52,7 +52,7 @@ var redirectHandler = function(req, res) {
     });
 };
 
-//Action to take, in this case, retrieve a playlist from the SoundCloud API and then begin iterating through the song ID's in the playlist
+//Determine what to do based on arguments
 getPlaylist(nconf, function(tracks) {
     //If user specified reverse flag, start with last track
     if(nconf.get('r')) {
