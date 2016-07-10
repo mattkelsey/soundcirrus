@@ -180,7 +180,9 @@ function playSong (filename, callback) {
 
     //If user terminates application, clean filesystem
     process.on('SIGINT', function() {
+        console.log("Cleaning up...")
         fs.unlink(path.join(__dirname, filename));
+        console.log("Exiting");
     })
 
 }
