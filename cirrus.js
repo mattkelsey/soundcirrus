@@ -54,7 +54,12 @@ var redirectHandler = function(req, res) {
 
 //Action to take, in this case, retrieve a playlist from the SoundCloud API and then begin iterating through the song ID's in the playlist
 getPlaylist(nconf, function(tracks) {
-    playPlaylist(tracks, 0);
+    //If user specified reverse flag, start with last track
+    if(nconf.get('r')) {
+        playPlaylist(tracks, tracks.length-1);
+    } else {
+        playPlaylist(tracks, 0);
+    }
 });
 
 
@@ -67,7 +72,11 @@ function playPlaylist(trackArray, index, callback) {
         playSong(song, function () {
             console.log("played");
             //When the song has finished repeat the process with the next song in the trackArray
-            playPlaylist(trackArray, index+1);
+            if(nconf.get('r')) {
+                playPlaylist(trackArray, index-1);
+            } else {
+                playPlaylist(trackArray, index+1);
+            }
         });
     });
 }
@@ -105,11 +114,16 @@ function downloadSong (trackid, callback) {
 
 function getPlaylist (nconf, callback) {
     var playlistid;
+    //check if playlist was specified
     if(nconf.get('p') != undefined) {
+        //play playlist by configured name
         playlistid = nconf.get("playlists:" + nconf.get('p'));
     } else if (nconf.get('P') != undefined) {
+        //play playlist by id
         playlistid = nconf.get('P');
     }
+
+    //Check if playlist should be played in reverse
 
     //Get data for given playlistID
     SC.get('/playlists/' + playlistid, function(err, playlist) {
@@ -163,3 +177,4 @@ function playSong (filename, callback) {
         callback();
     });
 }
+
