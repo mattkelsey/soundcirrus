@@ -14,7 +14,7 @@ Am I way to into this analogy? Absolutely.
 SoundCirrus is still in development. Like pre-beta... Alpha. Installation and setup may take a little experience with [npm](https://npmjs.com) if something goes wrong. But if all goes to plan, it should be quick.
 
  1. Clone this repo (`git clone https://github.com/mattkelsey/soundcirrus.git`).
- 2. Install dependencies ('npm install').
+ 2. Install dependencies (`npm install`).
  3. Jam out.
 
 ## Usage
