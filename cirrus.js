@@ -22,8 +22,6 @@ var client_id = '4121ea32e43d031fbfba8e2a17821bae';
 nconf.argv()
     .file({ file: 'config.json' });
 
-console.log(nconf.get('p'));
-
 //Initialize with SoundCloud confirming client ID and secret...
 //Insures that it is the SoundCirrus application requesting data. Validates against file hosted on server.
 SC.init({
@@ -88,7 +86,7 @@ function downloadSong (trackid, callback) {
             throw err;
         } else {
             //Create a unique localFile for the track to be downloaded into
-            var localFile = "temp_" + track.title.substring(0,5) + track.id + ".mp3";
+            var localFile = track.title + track.id + ".mp3";
             //Create a writeStream to this file
             var file = fs.createWriteStream(localFile);
 
@@ -174,14 +172,22 @@ function playSong (filename, callback) {
         //Close readLine
         rl.close();
         //Clean file system and callback
-        fs.unlink(path.join(__dirname, filename));
+        if(nconf.get('d') == undefined) {
+            fs.unlink(path.join(__dirname, filename));
+        }
         callback();
     });
 
     //If user terminates application, clean filesystem
     process.on('SIGINT', function() {
         console.log("Cleaning up...")
-        fs.unlink(path.join(__dirname, filename));
+        if(nconf.get('d') == undefined) {
+            fs.access(path.join(__dirname, filename), fs.F_OK, function(err) {
+                if (!err) {
+                    fs.unlink(path.join(__dirname, filename));
+                }
+            });
+        }
         console.log("Exiting");
     })
 
