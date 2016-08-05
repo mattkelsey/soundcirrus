@@ -28,10 +28,10 @@ You can run SoundCirrus using `node`. Use an up-to-date version of `node` for be
 With no arguments specified SoundCirrus will take the default action: begin playing an arbitrary playlist... Not very useful.
 
 SoundCirrus can take the following arguments:
- - '-P <id>': begins playing playlist with specified ID
- - '-p <name>': begins playing playlist by name specified in configuration file (see Configuration)
- - '-r': plays playlist in revere
- - '-d': saves downloaded mp3 files so they can be accessed later through other media players
+ - `-P <id>`: begins playing playlist with specified ID
+ - `-p <name>`: begins playing playlist by name specified in configuration file (see Configuration)
+ - `-r`: plays playlist in revere
+ - `-d`: saves downloaded mp3 files so they can be accessed later through other media players
 
 ## Configuration
 
