@@ -120,6 +120,8 @@ function getPlaylist (nconf, callback) {
     } else if (nconf.get('P') != undefined) {
         //play playlist by id
         playlistid = nconf.get('P');
+    } else {
+        playlistid = "24967373";
     }
 
     //Check if playlist should be played in reverse
