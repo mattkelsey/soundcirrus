@@ -32,6 +32,7 @@ SoundCirrus can take the following arguments:
  - `-p <name>`: begins playing playlist by name specified in configuration file (see Configuration)
  - `-r`: plays playlist in revere
  - `-d`: saves downloaded mp3 files so they can be accessed later through other media players
+ - `-D`: same as above but doesn't play songs once they are downloaded... just downloads songs without playing
 
 ## Configuration
 

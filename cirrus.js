@@ -66,16 +66,25 @@ function playPlaylist(trackArray, index, callback) {
     //From the trackArray in the retrieved playlist download and play the first song
     downloadSong(trackArray[index], function(song) {
         console.log("downloaded: " + trackArray[index]);
-        console.log("playing")
-        playSong(song, function () {
-            console.log("played");
-            //When the song has finished repeat the process with the next song in the trackArray
+        if(nconf.get('D') == undefined) {
+            console.log("playing")
+            playSong(song, function () {
+                console.log("played");
+                //When the song has finished repeat the process with the next song in the trackArray
+                if(nconf.get('r')) {
+                    playPlaylist(trackArray, index-1);
+                } else {
+                    playPlaylist(trackArray, index+1);
+                }
+            });
+        } else {
             if(nconf.get('r')) {
                 playPlaylist(trackArray, index-1);
             } else {
                 playPlaylist(trackArray, index+1);
             }
-        });
+        }
+
     });
 }
 
